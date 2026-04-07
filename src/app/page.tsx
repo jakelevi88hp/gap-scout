@@ -162,6 +162,24 @@ function ScriptModal({ gap, onClose, onSave }: { gap: ContentGap; onClose: () =>
 
   const fullScript = script ? `🎬 HOOK:\n${script.hook}\n\n📖 BODY:\n${script.body}\n\n📣 CTA:\n${script.cta}\n\n#️⃣ HASHTAGS:\n${script.hashtags.join(' ')}` : '';
 
+  function formatForCapCut(s: GeneratedScript): string {
+    function chunk(text: string, maxWords = 7): string {
+      const words = text.split(' ');
+      const lines: string[] = [];
+      for (let i = 0; i < words.length; i += maxWords) {
+        lines.push(words.slice(i, i + maxWords).join(' '));
+      }
+      return lines.join('\n');
+    }
+    return [
+      `[HOOK — say fast, first 3 sec]\n${chunk(s.hook)}`,
+      `\n[BODY — deliver value]\n${chunk(s.body)}`,
+      `\n[CTA — end strong]\n${chunk(s.cta)}`,
+      `\n[TALKING POINTS]\n${s.talkingPoints.map((p, i) => `${i + 1}. ${p}`).join('\n')}`,
+      `\n[TIKTOK CAPTION — paste as-is]\n${s.hashtags.join(' ')}`,
+    ].join('\n');
+  }
+
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 overflow-y-auto">
       <div className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-2xl p-6 shadow-2xl my-4">
@@ -185,7 +203,11 @@ function ScriptModal({ gap, onClose, onSave }: { gap: ContentGap; onClose: () =>
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="flex justify-end">
+            <div className="flex justify-end gap-2">
+              <button onClick={()=>copyText(formatForCapCut(script!), 'capcut')}
+                className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white border border-gray-600 rounded-lg px-3 py-1.5 transition-colors">
+                {copied==='capcut' ? <Check size={12}/> : <span>📱</span>} CapCut Export
+              </button>
               <button onClick={()=>copyText(fullScript, 'all')}
                 className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white border border-gray-600 rounded-lg px-3 py-1.5 transition-colors">
                 {copied==='all' ? <Check size={12}/> : <Copy size={12}/>} Copy Full Script
